@@ -1,0 +1,79 @@
+---
+title: "fastqR_usage"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{fastqR_usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(fastqR)
+
+```
+Background
+==========
+
+FastQ files are composed of entries consisting of 4 lines
+1. ID line. Starts with an @ symbol. Sequence ID is anything after that. IDs should be unique
+2. Sequence line - should be a string of G/A/T/C/N bases
+3. Mid line - starts with a + and are generally ignored.
+4. Quality line. Should be a string of characters the same length as the sequence.
+
+An example of a fastq file contain 2 sequence records would be:
+
+@1HWUSI-EAS460:44:661VRAAXX:2:1:15253:1153
+GCCNGGCTATGCAAGCAGGCTGCAGTGTGGATATAGTCGT
++1HWUSI-EAS460:44:661VRAAXX:2:1:15253:1153
+???#;ABAAAHHHHGHFGDHEG@GG@GDGGB>DDDGBDD=
+@2HWUSI-EAS460:44:661VRAAXX:2:1:17398:1153
+CAGNGAATCCTTGAGGCACCTTCTCTTATAAAAACA
++2HWUSI-EAS460:44:661VRAAXX:2:1:17398:1153
+BBB#BFFFEFHHHHHDHHHHHHHHHHHHHHHHHHHH
+
+read_fastq
+==========
+
+read_fastq reads a .fq format file and returnsa tibble with one row per fastq entry where the columns are:
+
+1. ID (the sequence ID from the first line, minus the @)
+2. Bases (the bases from the second line)
+3. Qualities (the quality string from the 4th line)
+4. GC (the GC content of the bases)
+
+
+```{r}
+head(read_fastq(system.file("good.fq", package = "fastqR")))
+```
+
+gc_content
+==========
+
+Take in a vector of DNA sequence strings and return a vector of %GC values (what
+percentage of the bases are G or C). 
+
+```{r}
+
+gc_content("GAGAGCGGCTT")
+
+```
+decode_qualities
+================
+
+Converts a scalar string of quality values into a vector of Phred scores.
+
+*Phred score = ASCII value of letter - offset*
+
+```{r}
+
+decode_qualities("???#;ABAAAH")
+
+```
+
